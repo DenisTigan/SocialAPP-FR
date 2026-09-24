@@ -1,6 +1,6 @@
 /* ============================================================
    navbar.css — Top navigation bar for protected pages
-   Consistent with auth.css + feed.css design tokens
+   Desktop: full nav with links + logout. Mobile: brand only.
    ============================================================ */
 
 /* ── Navbar container ── */
@@ -11,13 +11,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
-  height: 58px;
-  background: rgba(13, 11, 30, 0.88);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  font-family: 'Inter', system-ui, sans-serif;
+  padding: 0 32px;
+  height: var(--navbar-height);
+  background: rgba(26, 26, 46, 0.94); /* --bg-secondary with opacity */
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
 }
 
 /* ── Brand ── */
@@ -26,36 +26,43 @@
   align-items: center;
   gap: 10px;
   text-decoration: none;
+  flex-shrink: 0;
 }
 
 .navbar-brand-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 15px;
+  font-size: 16px;
   flex-shrink: 0;
-  box-shadow: 0 3px 10px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 3px 14px rgba(139, 92, 246, 0.5);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.navbar-brand:hover .navbar-brand-icon {
+  transform: scale(1.06);
+  box-shadow: 0 4px 18px rgba(139, 92, 246, 0.65);
 }
 
 .navbar-brand-name {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-  background: linear-gradient(90deg, #c7d2fe, #a78bfa);
+  background: var(--accent-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* ── Nav links ── */
+/* ── Centre nav links (desktop only) ── */
 .navbar-links {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
 .navbar-link {
@@ -63,26 +70,41 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  padding: 7px 14px;
-  border-radius: 10px;
+  gap: 2px;
+  padding: 6px 18px;
+  border-radius: var(--radius-sm);
   text-decoration: none;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.7rem;
   font-weight: 500;
   letter-spacing: 0.02em;
-  transition: color 0.18s ease, background 0.18s ease;
+  transition: color var(--transition-fast), background var(--transition-fast);
   position: relative;
+  min-height: 44px;
 }
 
 .navbar-link:hover {
-  color: #94a3b8;
+  color: var(--text-secondary);
   background: rgba(255, 255, 255, 0.05);
 }
 
+/* Active state — gradient bottom bar + tinted pill background */
 .navbar-link.active {
-  color: #818cf8;
-  background: rgba(129, 140, 248, 0.1);
+  color: var(--text-primary);
+  background: rgba(139, 92, 246, 0.14);
+}
+
+/* Gradient underline bar at bottom of active link */
+.navbar-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 3px;
+  border-radius: 2px 2px 0 0;
+  background: var(--accent-gradient);
 }
 
 .navbar-link-icon {
@@ -91,37 +113,24 @@
 }
 
 .navbar-link-label {
-  font-size: 0.6875rem;
-  font-weight: 600;
+  font-size: 0.6rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
 }
 
-/* Active indicator dot */
-.navbar-link.active::after {
-  content: '';
-  position: absolute;
-  bottom: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: #818cf8;
-}
-
-/* ── Right side (logout etc) ── */
+/* ── Right side: avatar + logout ── */
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .navbar-avatar {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: var(--accent-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -131,23 +140,43 @@
   text-transform: uppercase;
   cursor: default;
   flex-shrink: 0;
+  box-shadow: 0 2px 10px rgba(139, 92, 246, 0.4);
 }
 
 .navbar-logout-btn {
-  padding: 6px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  padding: 7px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
   background: transparent;
-  color: #64748b;
-  font-family: inherit;
+  color: var(--text-muted);
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
-  transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+  min-height: 36px;
 }
 
 .navbar-logout-btn:hover {
-  color: #f1f5f9;
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Mobile: show brand only; BottomNav handles routing ── */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 16px;
+    justify-content: center; /* center the brand on mobile */
+  }
+
+  .navbar-links {
+    display: none;
+  }
+
+  .navbar-right {
+    display: none;
+  }
 }

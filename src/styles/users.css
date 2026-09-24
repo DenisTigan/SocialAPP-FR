@@ -1,18 +1,35 @@
 /* ============================================================
    users.css — Users list page
+   Uses theme.css tokens exclusively — no hardcoded colors.
    ============================================================ */
 
 .users-page {
-  min-height: 100vh;
-  background: #0d0b1e;
-  font-family: 'Inter', system-ui, sans-serif;
-  color: #f1f5f9;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: calc(100dvh - var(--navbar-height));
 }
 
 .users-inner {
   max-width: 600px;
+  width: 100%;
   margin: 0 auto;
-  padding: 28px 16px 64px;
+  /* Desktop: no BottomNav, moderate bottom padding */
+  padding: 28px 16px 40px;
+}
+
+/* Narrow mobile: tighter side padding */
+@media (max-width: 479px) {
+  .users-inner {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+/* Mobile: extra bottom padding for BottomNav */
+@media (max-width: 768px) {
+  .users-inner {
+    padding-bottom: 80px;
+  }
 }
 
 /* ── Page heading ── */
@@ -21,7 +38,7 @@
   font-weight: 700;
   letter-spacing: -0.02em;
   margin: 0 0 20px;
-  color: #f1f5f9;
+  color: var(--text-primary);
 }
 
 /* ── Search input ── */
@@ -32,7 +49,7 @@
 
 .users-search-icon {
   position: absolute;
-  left: 13px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 1rem;
@@ -42,45 +59,50 @@
 
 .users-search-input {
   width: 100%;
-  padding: 11px 14px 11px 38px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  color: #f1f5f9;
-  font-family: inherit;
+  padding: 12px 14px 12px 40px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
   font-size: 0.9375rem;
   outline: none;
   box-sizing: border-box;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  min-height: 48px;
 }
 
 .users-search-input::placeholder {
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .users-search-input:focus {
-  border-color: #818cf8;
-  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.14);
+  border-color: var(--accent-start);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.16);
 }
 
 /* ── User list ── */
 .users-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
-/* ── User row ── */
+/* ── User row card ── */
 .users-row {
   display: flex;
   align-items: center;
   gap: 14px;
   padding: 14px 16px;
-  background: #13112a;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 14px;
-  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  transition:
+    border-color var(--transition-base),
+    background var(--transition-base),
+    transform var(--transition-base);
   animation: userRowIn 0.3s ease both;
+  min-height: 72px; /* comfortable touch target */
 }
 
 @keyframes userRowIn {
@@ -89,16 +111,16 @@
 }
 
 .users-row:hover {
-  border-color: rgba(129, 140, 248, 0.3);
-  background: rgba(19, 17, 42, 0.95);
+  border-color: rgba(139, 92, 246, 0.35);
+  background: rgba(26, 26, 46, 0.95);
   transform: translateY(-1px);
 }
 
 .users-row-avatar {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: var(--accent-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -107,6 +129,7 @@
   color: #fff;
   text-transform: uppercase;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
 }
 
 .users-row-info {
@@ -117,41 +140,55 @@
 .users-row-username {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #f1f5f9;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: block;
 }
 
+.users-row-username-link {
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.users-row-username-link:hover {
+  color: var(--accent-start);
+}
+
+/* ── Message button ── */
 .users-message-btn {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
+  padding: 9px 18px;
   border: none;
   border-radius: 50px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: var(--accent-gradient);
   color: #fff;
-  font-family: inherit;
   font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  transition: opacity 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
-  box-shadow: 0 3px 10px rgba(99, 102, 241, 0.3);
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+  box-shadow: 0 3px 10px rgba(139, 92, 246, 0.35);
+  min-height: 44px;
 }
 
 .users-message-btn:hover {
-  opacity: 0.88;
+  opacity: 0.9;
   transform: translateY(-1px);
-  box-shadow: 0 5px 14px rgba(99, 102, 241, 0.45);
+  box-shadow: 0 5px 16px rgba(139, 92, 246, 0.5);
 }
 
 .users-message-btn:active {
-  transform: translateY(0);
+  transform: scale(0.97);
 }
 
-/* ── States ── */
+/* ── Spinner ── */
 .users-spinner-wrap {
   display: flex;
   justify-content: center;
@@ -161,8 +198,8 @@
 .users-spinner {
   width: 36px;
   height: 36px;
-  border: 3px solid rgba(129, 140, 248, 0.2);
-  border-top-color: #818cf8;
+  border: 3px solid rgba(139, 92, 246, 0.2);
+  border-top-color: var(--accent-start);
   border-radius: 50%;
   animation: usersSpin 0.75s linear infinite;
 }
@@ -171,10 +208,11 @@
   to { transform: rotate(360deg); }
 }
 
+/* ── Empty states ── */
 .users-empty {
   text-align: center;
   padding: 80px 24px;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .users-empty-icon {
@@ -186,7 +224,7 @@
 .users-empty h2 {
   font-size: 1rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--text-secondary);
   margin: 0 0 6px;
 }
 
@@ -199,25 +237,5 @@
   text-align: center;
   padding: 40px 24px;
   font-size: 0.9rem;
-  color: #64748b;
+  color: var(--text-muted);
 }
-
-/* ── Profile navigation link (username in user row) ── */
-.users-row-username {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: #f1f5f9;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.users-row-username-link {
-  text-decoration: none;
-  transition: color 0.18s ease;
-}
-
-.users-row-username-link:hover {
-  color: #818cf8;
-}
-

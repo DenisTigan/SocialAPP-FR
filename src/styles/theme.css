@@ -1,0 +1,49 @@
+/* ============================================================
+   theme.css — Global Design Token System
+   Single source of truth for all CSS custom properties.
+   Imported once in main.tsx before any other styles.
+   ============================================================ */
+
+:root {
+  /* ── Core Colors ── */
+  --bg-primary: #0F0F1A;
+  --bg-secondary: #1A1A2E;
+  --bg-tertiary: #24243E;
+
+  /* ── Accent Gradient ── */
+  --accent-start: #8B5CF6;
+  --accent-end: #EC4899;
+  --accent-gradient: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+
+  /* ── Text Colors ── */
+  --text-primary: #F5F5F7;
+  --text-secondary: #A0A0B8;
+  --text-muted: #6B6B85;
+
+  /* ── Borders & Shadows ── */
+  --border-color: rgba(255, 255, 255, 0.08);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.25);
+
+  /* ── Semantic Colors ── */
+  --danger: #EF4444;
+  --success: #22C55E;
+
+  /* ── Border Radii ── */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+
+  /* ── Spacing Scale (reference only; use inline in CSS) ── */
+  /* 4px | 8px | 16px | 24px | 32px */
+
+  /* ── Typography ── */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* ── Transitions ── */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+
+  /* ── Navbar height (used by page padding calculations) ── */
+  --navbar-height: 60px;
+  --bottom-nav-height: 60px;
+}

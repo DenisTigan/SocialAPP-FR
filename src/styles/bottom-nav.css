@@ -1,0 +1,105 @@
+/* ============================================================
+   bottom-nav.css — Mobile bottom tab bar
+   Visible only at max-width: 768px
+   ============================================================ */
+
+.bottom-nav {
+  display: none; /* hidden by default — shown only on mobile */
+}
+
+/* ── Show on mobile only ── */
+@media (max-width: 768px) {
+  .bottom-nav {
+    display: flex;
+    align-items: stretch;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    height: var(--bottom-nav-height);
+    /* Account for iOS home indicator */
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: rgba(26, 26, 46, 0.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* ── Tab item ── */
+.bnav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 4px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+  min-height: 44px; /* touch target minimum */
+  position: relative;
+}
+
+.bnav-item:hover {
+  color: var(--text-secondary);
+}
+
+.bnav-item.active {
+  color: var(--accent-start);
+}
+
+/* Active indicator bar at top */
+.bnav-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background: var(--accent-gradient);
+}
+
+/* ── Icon ── */
+.bnav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  transition: transform var(--transition-fast);
+}
+
+.bnav-item.active .bnav-icon {
+  transform: scale(1.1);
+}
+
+/* Avatar circle for profile tab */
+.bnav-avatar-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.bnav-item.active .bnav-avatar-icon {
+  box-shadow: 0 0 0 2px var(--accent-start);
+}
+
+/* ── Label ── */
+.bnav-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  line-height: 1;
+}
