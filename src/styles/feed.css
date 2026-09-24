@@ -1,0 +1,716 @@
+/* ============================================================
+   feed.css — Feed page, PhotoCard, UploadModal styles
+   Consistent with auth.css design tokens (Inter, indigo-violet)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ── Design tokens (scoped to feed — mirrors auth.css vars) ── */
+:root {
+  --feed-bg: #0d0b1e;
+  --feed-card-bg: #13112a;
+  --feed-card-border: rgba(255, 255, 255, 0.08);
+  --feed-card-shadow: 0 4px 32px rgba(0, 0, 0, 0.45);
+  --feed-header-bg: rgba(13, 11, 30, 0.85);
+  --feed-text: #f1f5f9;
+  --feed-text-muted: #64748b;
+  --feed-text-secondary: #94a3b8;
+  --feed-accent: #818cf8;
+  --feed-accent-hover: #a5b4fc;
+  --feed-btn-from: #6366f1;
+  --feed-btn-to: #8b5cf6;
+  --feed-like-active: #f43f5e;
+  --feed-like-active-bg: rgba(244, 63, 94, 0.12);
+  --feed-input-bg: rgba(255, 255, 255, 0.06);
+  --feed-input-border: rgba(255, 255, 255, 0.12);
+  --feed-input-focus: #818cf8;
+  --feed-overlay-bg: rgba(5, 4, 15, 0.82);
+  --feed-error: #f87171;
+  --feed-radius: 16px;
+  --feed-radius-sm: 10px;
+  --feed-radius-xs: 7px;
+  --feed-transition: 0.2s ease;
+}
+
+/* ── Global page background ── */
+.feed-page {
+  min-height: 100vh;
+  background: var(--feed-bg);
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--feed-text);
+}
+
+/* ════════════════════════════════════════
+   FEED SUB-HEADER
+   Brand + logout now live in Navbar; this just holds the New Post button
+   ════════════════════════════════════════ */
+.feed-subheader {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 16px 16px 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* New-post button */
+.feed-new-post-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--feed-radius-xs);
+  background: linear-gradient(135deg, var(--feed-btn-from), var(--feed-btn-to));
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity var(--feed-transition), transform var(--feed-transition), box-shadow var(--feed-transition);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.38);
+}
+
+.feed-new-post-btn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.52);
+}
+
+.feed-new-post-btn:active {
+  transform: translateY(0);
+}
+
+/* Logout ghost button */
+.feed-logout-btn {
+  padding: 7px 13px;
+  border: 1px solid var(--feed-card-border);
+  border-radius: var(--feed-radius-xs);
+  background: transparent;
+  color: var(--feed-text-secondary);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color var(--feed-transition), border-color var(--feed-transition), background var(--feed-transition);
+}
+
+.feed-logout-btn:hover {
+  color: var(--feed-text);
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ════════════════════════════════════════
+   FEED COLUMN
+   ════════════════════════════════════════ */
+.feed-column {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Status states ── */
+.feed-spinner-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.feed-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(129, 140, 248, 0.2);
+  border-top-color: var(--feed-accent);
+  border-radius: 50%;
+  animation: feedSpin 0.75s linear infinite;
+}
+
+@keyframes feedSpin {
+  to { transform: rotate(360deg); }
+}
+
+.feed-spinner-sm {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: feedSpin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+.feed-empty-state {
+  text-align: center;
+  padding: 80px 24px;
+  color: var(--feed-text-muted);
+}
+
+.feed-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+
+.feed-empty-state h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--feed-text-secondary);
+  margin: 0 0 8px;
+}
+
+.feed-empty-state p {
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.feed-error-state {
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--feed-error);
+}
+
+.feed-error-state p {
+  font-size: 0.9375rem;
+  margin: 0 0 16px;
+}
+
+.feed-retry-btn {
+  padding: 9px 22px;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: var(--feed-radius-xs);
+  background: rgba(248, 113, 113, 0.1);
+  color: var(--feed-error);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--feed-transition), border-color var(--feed-transition);
+}
+
+.feed-retry-btn:hover {
+  background: rgba(248, 113, 113, 0.18);
+  border-color: rgba(248, 113, 113, 0.5);
+}
+
+.feed-load-more-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0 0;
+}
+
+.feed-end-label {
+  text-align: center;
+  padding: 20px 0 0;
+  font-size: 0.8125rem;
+  color: var(--feed-text-muted);
+  letter-spacing: 0.02em;
+}
+
+/* ════════════════════════════════════════
+   PHOTO CARD
+   ════════════════════════════════════════ */
+.photo-card {
+  background: var(--feed-card-bg);
+  border: 1px solid var(--feed-card-border);
+  border-radius: var(--feed-radius);
+  box-shadow: var(--feed-card-shadow);
+  overflow: hidden;
+  animation: cardIn 0.35s ease both;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Card header ── */
+.photo-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.photo-card-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--feed-btn-from), var(--feed-btn-to));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.photo-card-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.photo-card-username {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--feed-text);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.photo-card-time {
+  font-size: 0.75rem;
+  color: var(--feed-text-muted);
+  margin-top: 1px;
+}
+
+/* ── Card image ── */
+.photo-card-img-wrap {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #0a0818;
+}
+
+.photo-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.photo-card-img-wrap:hover .photo-card-img {
+  transform: scale(1.02);
+}
+
+/* ── Action row ── */
+.photo-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px 8px;
+}
+
+.photo-card-like-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  border: 1px solid var(--feed-card-border);
+  border-radius: 50px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--feed-text-secondary);
+  transition: color var(--feed-transition), background var(--feed-transition), border-color var(--feed-transition), transform var(--feed-transition);
+  user-select: none;
+}
+
+.photo-card-like-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.photo-card-like-btn:active {
+  transform: scale(0.93);
+}
+
+.photo-card-like-btn.liked {
+  color: var(--feed-like-active);
+  background: var(--feed-like-active-bg);
+  border-color: rgba(244, 63, 94, 0.3);
+}
+
+.photo-card-heart {
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-block;
+}
+
+.photo-card-like-btn.liked .photo-card-heart {
+  transform: scale(1.18);
+}
+
+.photo-card-like-count {
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Caption ── */
+.photo-card-caption {
+  padding: 0 16px 10px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--feed-text);
+}
+
+.photo-card-caption strong {
+  font-weight: 600;
+  margin-right: 6px;
+  color: var(--feed-text);
+}
+
+/* ── Comments toggle link ── */
+.photo-card-comments-toggle {
+  display: block;
+  padding: 0 16px 10px;
+  font-size: 0.8125rem;
+  color: var(--feed-text-muted);
+  background: none;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: color var(--feed-transition);
+}
+
+.photo-card-comments-toggle:hover {
+  color: var(--feed-accent);
+}
+
+/* ── Comments section ── */
+.photo-card-comments {
+  border-top: 1px solid var(--feed-card-border);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: slideDown 0.22s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.photo-card-comment-item {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--feed-text);
+}
+
+.photo-card-comment-item strong {
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.photo-card-comments-empty {
+  font-size: 0.8125rem;
+  color: var(--feed-text-muted);
+  text-align: center;
+  padding: 4px 0;
+}
+
+.photo-card-comments-loading {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+/* New comment input row */
+.photo-card-comment-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.photo-card-comment-input {
+  flex: 1;
+  padding: 8px 12px;
+  background: var(--feed-input-bg);
+  border: 1px solid var(--feed-input-border);
+  border-radius: 50px;
+  color: var(--feed-text);
+  font-family: inherit;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color var(--feed-transition), box-shadow var(--feed-transition);
+}
+
+.photo-card-comment-input::placeholder {
+  color: var(--feed-text-muted);
+}
+
+.photo-card-comment-input:focus {
+  border-color: var(--feed-input-focus);
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.15);
+}
+
+.photo-card-comment-post-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(135deg, var(--feed-btn-from), var(--feed-btn-to));
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity var(--feed-transition), transform var(--feed-transition);
+  white-space: nowrap;
+}
+
+.photo-card-comment-post-btn:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.photo-card-comment-post-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ════════════════════════════════════════
+   UPLOAD MODAL
+   ════════════════════════════════════════ */
+.upload-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--feed-overlay-bg);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: overlayIn 0.2s ease;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.upload-modal {
+  width: 100%;
+  max-width: 460px;
+  background: #1a1735;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--feed-radius);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.65);
+  animation: modalIn 0.25s ease both;
+  overflow: hidden;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.94) translateY(16px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.upload-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.upload-modal-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--feed-text);
+  margin: 0;
+}
+
+.upload-modal-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--feed-text-secondary);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--feed-transition), color var(--feed-transition);
+}
+
+.upload-modal-close:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--feed-text);
+}
+
+.upload-modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Image picker / preview */
+.upload-img-picker {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--feed-radius-sm);
+  border: 2px dashed rgba(129, 140, 248, 0.3);
+  background: rgba(129, 140, 248, 0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color var(--feed-transition), background var(--feed-transition);
+  overflow: hidden;
+  position: relative;
+}
+
+.upload-img-picker:hover {
+  border-color: rgba(129, 140, 248, 0.6);
+  background: rgba(129, 140, 248, 0.08);
+}
+
+.upload-img-picker-icon {
+  font-size: 2.4rem;
+  margin-bottom: 10px;
+  opacity: 0.5;
+}
+
+.upload-img-picker-label {
+  font-size: 0.875rem;
+  color: var(--feed-text-muted);
+  text-align: center;
+}
+
+.upload-img-picker-label span {
+  color: var(--feed-accent);
+  font-weight: 600;
+}
+
+.upload-img-picker input[type='file'] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.upload-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Caption input */
+.upload-caption-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--feed-text-secondary);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.upload-caption-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--feed-input-bg);
+  border: 1px solid var(--feed-input-border);
+  border-radius: var(--feed-radius-xs);
+  color: var(--feed-text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+  resize: none;
+  box-sizing: border-box;
+  transition: border-color var(--feed-transition), box-shadow var(--feed-transition);
+}
+
+.upload-caption-input::placeholder {
+  color: var(--feed-text-muted);
+}
+
+.upload-caption-input:focus {
+  border-color: var(--feed-input-focus);
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.14);
+}
+
+/* Upload error */
+.upload-error {
+  font-size: 0.8125rem;
+  color: var(--feed-error);
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.22);
+  border-radius: var(--feed-radius-xs);
+  padding: 9px 12px;
+}
+
+/* Submit button */
+.upload-submit-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: var(--feed-radius-xs);
+  background: linear-gradient(135deg, var(--feed-btn-from), var(--feed-btn-to));
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity var(--feed-transition), transform var(--feed-transition), box-shadow var(--feed-transition);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}
+
+.upload-submit-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.48);
+}
+
+.upload-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.upload-submit-btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ── Profile navigation links (added to PhotoCard) ── */
+.photo-card-username {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--feed-text);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.photo-card-username-link {
+  text-decoration: none;
+  transition: color var(--feed-transition);
+}
+
+.photo-card-username-link:hover {
+  color: var(--feed-accent);
+}
+
+.photo-card-comment-username-link {
+  font-weight: 600;
+  color: var(--feed-text);
+  text-decoration: none;
+  margin-right: 6px;
+  transition: color var(--feed-transition);
+}
+
+.photo-card-comment-username-link:hover {
+  color: var(--feed-accent);
+}
+

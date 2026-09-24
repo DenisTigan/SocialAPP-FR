@@ -1,0 +1,153 @@
+/* ============================================================
+   navbar.css — Top navigation bar for protected pages
+   Consistent with auth.css + feed.css design tokens
+   ============================================================ */
+
+/* ── Navbar container ── */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 58px;
+  background: rgba(13, 11, 30, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* ── Brand ── */
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.navbar-brand-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(99, 102, 241, 0.4);
+}
+
+.navbar-brand-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, #c7d2fe, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Nav links ── */
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.navbar-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 7px 14px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: color 0.18s ease, background 0.18s ease;
+  position: relative;
+}
+
+.navbar-link:hover {
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.navbar-link.active {
+  color: #818cf8;
+  background: rgba(129, 140, 248, 0.1);
+}
+
+.navbar-link-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.navbar-link-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Active indicator dot */
+.navbar-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #818cf8;
+}
+
+/* ── Right side (logout etc) ── */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navbar-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+  cursor: default;
+  flex-shrink: 0;
+}
+
+.navbar-logout-btn {
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.navbar-logout-btn:hover {
+  color: #f1f5f9;
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+}
