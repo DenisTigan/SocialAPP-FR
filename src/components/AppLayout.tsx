@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import BottomNav from './BottomNav';
+import OfflineBanner from './OfflineBanner';
 import '../styles/app-layout.css';
 
 /**
@@ -14,6 +15,7 @@ export default function AppLayout() {
   return (
     <div className="app-layout">
       <Navbar />
+      <OfflineBanner />
       <main className="app-main">
         <Outlet />
       </main>
@@ -21,3 +23,4 @@ export default function AppLayout() {
     </div>
   );
 }
+

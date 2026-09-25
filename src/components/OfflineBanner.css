@@ -1,0 +1,51 @@
+/* ============================================================
+   OfflineBanner.css — Slim network-status indicator
+   Fixed below the Navbar; only visible when navigator.onLine
+   is false. Uses --danger from theme.css for urgency.
+   ============================================================ */
+
+.offline-banner {
+  position: fixed;
+  top: var(--navbar-height, 60px); /* sit flush under the Navbar */
+  left: 0;
+  right: 0;
+  z-index: 900; /* below Navbar (typically 1000+) but above page content */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 8px 16px;
+
+  background-color: var(--danger, #EF4444);
+  color: #fff;
+  font-family: var(--font-family, 'Inter', system-ui, sans-serif);
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 500;
+  letter-spacing: 0.01em;
+
+  /* Subtle border at the bottom to separate from page content */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+
+  /* Entrance animation — slides down from behind the Navbar */
+  animation: offline-banner-slide-in 0.25s ease forwards;
+}
+
+@keyframes offline-banner-slide-in {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.offline-banner__icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
