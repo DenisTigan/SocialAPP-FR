@@ -7,6 +7,10 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      // Switch to injectManifest so we can write our own service worker (src/sw.ts)
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'icons/icon-192.png', 'icons/icon-512.png'],
       manifest: {
@@ -36,44 +40,14 @@ export default defineConfig({
           },
         ],
       },
-      workbox: {
-        // Precache all static assets (JS, CSS, HTML, fonts) — default behaviour
+      // injectManifest mode: configuration for the manifest injection
+      injectManifest: {
+        // Precache all static assets (JS, CSS, HTML, fonts, icons)
         globPatterns: ['**/*.{js,css,html,ico,svg,png,woff,woff2}'],
-        runtimeCaching: [
-          {
-            // NetworkFirst for API calls: always try network, fall back to cache
-            urlPattern: /\/api\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-cache',
-              expiration: {
-                maxAgeSeconds: 5 * 60, // 5 minutes
-                maxEntries: 50,
-              },
-              networkTimeoutSeconds: 10,
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-          {
-            // CacheFirst for images (avatars, photo uploads): photos don't change
-            urlPattern: /\.(?:png|jpg|jpeg|gif|webp|avif|svg)$/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'images-cache',
-              expiration: {
-                maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
-                maxEntries: 200,
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-        ],
+        // Exclude notification-related API paths from precache
+        // (runtime caching in sw.ts handles API with NetworkFirst)
+        globIgnores: ['**/node_modules/**'],
       },
     }),
   ],
 })
-

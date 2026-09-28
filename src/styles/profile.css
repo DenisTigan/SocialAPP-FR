@@ -139,6 +139,7 @@
     box-shadow var(--transition-fast);
   box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
   min-height: 44px;
+  text-decoration: none; /* used on <Link> elements too */
 }
 
 .profile-msg-btn:hover {

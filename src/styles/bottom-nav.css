@@ -103,3 +103,29 @@
   text-transform: uppercase;
   line-height: 1;
 }
+
+/* ── Badged icon wrapper (for unread indicator) ── */
+.bnav-icon--badged {
+  position: relative;
+}
+
+/* ── Unread badge — gradient pill shown on Messages icon ── */
+/* (same .nav-badge class as used in navbar.css) */
+.nav-badge {
+  position: absolute;
+  top: -5px;
+  right: -7px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 8px;
+  background: var(--accent-gradient);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  pointer-events: none;
+  box-shadow: 0 1px 6px rgba(139, 92, 246, 0.5);
+  white-space: nowrap;
+}

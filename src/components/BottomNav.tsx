@@ -1,14 +1,16 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useUnread } from '../context/UnreadContext';
 import '../styles/bottom-nav.css';
 
 /**
  * BottomNav — Mobile-only fixed bottom tab bar.
  * Visible only at max-width: 768px via CSS.
- * Icons: Feed, People, Messages, Profile.
+ * Icons: Feed, People, Messages (with unread badge), Profile.
  */
 export default function BottomNav() {
   const { user } = useAuth();
+  const { unreadCount } = useUnread();
   const avatarLetter = (user?.username?.[0] ?? '?').toUpperCase();
   const profileId = user?.userId ?? '';
 
@@ -52,13 +54,18 @@ export default function BottomNav() {
         id="bnav-messages"
         to="/messages"
         className={({ isActive }) => `bnav-item${isActive ? ' active' : ''}`}
-        aria-label="Messages"
+        aria-label={`Messages${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
       >
-        <span className="bnav-icon" aria-hidden="true">
+        <span className="bnav-icon bnav-icon--badged" aria-hidden="true">
           {/* Chat icon */}
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
+          {unreadCount > 0 && (
+            <span className="nav-badge" aria-hidden="true">
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
         </span>
         <span className="bnav-label">Messages</span>
       </NavLink>

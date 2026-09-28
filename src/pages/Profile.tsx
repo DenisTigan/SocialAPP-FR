@@ -168,14 +168,25 @@ export default function Profile() {
 
             <div className="profile-actions">
               {isOwnProfile ? (
-                <button
-                  id="profile-logout-btn"
-                  className="profile-logout-btn"
-                  onClick={handleLogout}
-                >
-                  <span aria-hidden="true">↩</span>
-                  Log out
-                </button>
+                <>
+                  <Link
+                    to="/settings"
+                    id="profile-settings-link"
+                    className="profile-msg-btn"
+                    aria-label="Go to settings"
+                  >
+                    <span aria-hidden="true">⚙️</span>
+                    Settings
+                  </Link>
+                  <button
+                    id="profile-logout-btn"
+                    className="profile-logout-btn"
+                    onClick={handleLogout}
+                  >
+                    <span aria-hidden="true">↩</span>
+                    Log out
+                  </button>
+                </>
               ) : (
                 <button
                   id="profile-msg-btn"

@@ -1,0 +1,239 @@
+/* ============================================================
+   settings.css — Settings page styles
+   Uses theme tokens from theme.css. Matches card, spacing,
+   radius and toggle style with the rest of the app.
+   ============================================================ */
+
+/* ── Page layout ── */
+.settings-page {
+  min-height: 100vh;
+  padding: 32px 16px 80px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.settings-page h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0 0 28px;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Section card ── */
+.settings-section {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-card);
+}
+
+.settings-section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+}
+
+/* ── Row with toggle ── */
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.settings-row:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.settings-row-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-row-label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 2px;
+}
+
+.settings-row-desc {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Sub-rows (indented) */
+.settings-sub-rows {
+  padding-left: 16px;
+  border-left: 2px solid var(--border-color);
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  transition: opacity var(--transition-base);
+}
+
+.settings-sub-rows.dimmed {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ── Status / helper text ── */
+.settings-status {
+  margin-top: 10px;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.settings-status--error {
+  color: var(--danger);
+}
+
+.settings-status--warn {
+  color: #F59E0B;
+}
+
+/* ── Spinner inside toggle area ── */
+.settings-spinner {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--accent-start);
+  animation: settings-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes settings-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Logout button ── */
+.settings-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px 20px;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: var(--radius-sm);
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--danger);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.settings-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(239, 68, 68, 0.55);
+  transform: translateY(-1px);
+}
+
+.settings-logout-btn:active {
+  transform: translateY(0);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ToggleSwitch — reusable across the app
+   ───────────────────────────────────────────────────────────── */
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+.toggle-switch--disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Visually hide the real checkbox but keep it accessible */
+.toggle-switch__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.toggle-switch__label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+/* Track */
+.toggle-switch__track {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  transition: background var(--transition-base), border-color var(--transition-base);
+  flex-shrink: 0;
+}
+
+/* Thumb */
+.toggle-switch__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: transform var(--transition-base), background var(--transition-base);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Checked state — slide thumb right and gradient track */
+.toggle-switch__input:checked + .toggle-switch__track,
+.toggle-switch__input:checked ~ .toggle-switch__track {
+  background: var(--accent-gradient);
+  border-color: transparent;
+}
+
+.toggle-switch__input:checked + .toggle-switch__track .toggle-switch__thumb,
+.toggle-switch__input:checked ~ .toggle-switch__track .toggle-switch__thumb {
+  transform: translateX(20px);
+  background: #fff;
+}
+
+/* Focus ring — visible for keyboard nav */
+.toggle-switch__input:focus-visible + .toggle-switch__track,
+.toggle-switch__input:focus-visible ~ .toggle-switch__track {
+  outline: 2px solid var(--accent-start);
+  outline-offset: 2px;
+}

@@ -87,3 +87,24 @@ export interface UserResponse {
   id: string;               // format: uuid
   username: string;
 }
+
+// ── Notification types (from OpenAPI spec) ────────────────────────────────
+
+export interface NotificationPreferencesDto {
+  notifyMessages: boolean;
+  notifyPosts: boolean;
+}
+
+export interface Keys {
+  p256dh: string;
+  auth: string;
+}
+
+export interface PushSubscriptionRequest {
+  endpoint: string;
+  keys: Keys;
+}
+
+export interface VapidKeyResponse {
+  publicKey: string;
+}
