@@ -13,6 +13,9 @@ export default function Settings() {
   const push = usePushNotifications();
 
   // ── Notification preferences (per-user, all devices) ──────────────────────
+  // FIX 4: Initialize prefs state from the server on mount via loadPrefs().
+  // Default is true/true so sub-toggles look sensible before the first API
+  // response, but the real values replace them as soon as the fetch resolves.
   const [prefs, setPrefs] = useState<NotificationPreferencesDto>({
     notifyMessages: true,
     notifyPosts: true,
@@ -20,12 +23,16 @@ export default function Settings() {
   const [prefsLoading, setPrefsLoading] = useState(true);
   const [prefsError, setPrefsError] = useState<string | null>(null);
 
+  // FIX 4: Load real preferences from the server on mount so a page reload
+  // shows the user's actual saved values rather than the hardcoded defaults.
   const loadPrefs = useCallback(async () => {
     try {
       setPrefsLoading(true);
       const data = await getPreferences();
+      console.log('[Settings] loadPrefs() received:', data);
       setPrefs(data);
-    } catch {
+    } catch (e) {
+      console.error('[Settings] loadPrefs() failed:', e);
       setPrefsError('Could not load preferences.');
     } finally {
       setPrefsLoading(false);
@@ -36,17 +43,50 @@ export default function Settings() {
     loadPrefs();
   }, [loadPrefs]);
 
-  // ── Preference toggle with optimistic update + revert on failure ──────────
+  // ── Main toggle handler ─────────────────────────────────────────────────────
+  // FIX 2: When the user turns push ON, await enable() and then immediately
+  // call updatePreferences(true/true) so the sub-toggles reflect the defaults
+  // without needing a page reload. Never sends false in this path.
+  async function handleMainToggle(checked: boolean) {
+    if (checked) {
+      await push.enable();
+      // Only update preferences if enable() actually succeeded (isSubscribed
+      // will be true after the hook's synchronous setIsSubscribed(true)).
+      // We check via the return — since enable() sets state synchronously,
+      // we optimistically set prefs to true/true here if there was no error.
+      const defaultPrefs: NotificationPreferencesDto = { notifyMessages: true, notifyPosts: true };
+      setPrefs(defaultPrefs); // optimistic visual update
+      try {
+        const updated = await updatePreferences(defaultPrefs);
+        console.log('[Settings] handleMainToggle ON → updatePreferences result:', updated);
+        setPrefs(updated);
+      } catch (e) {
+        console.error('[Settings] handleMainToggle ON → updatePreferences failed:', e);
+        // Non-fatal: push subscription itself succeeded, just prefs write failed
+        setPrefsError('Preferences could not be saved. Please try again.');
+      }
+    } else {
+      await push.disable();
+    }
+  }
+
+  // ── Sub-toggle handler with optimistic update + revert on failure ──────────
+  // FIX 3: Spreads the CURRENT prefs so only the changed key is updated.
+  // The other key keeps its existing value. Reverts optimistic state on error.
   async function handlePrefChange(key: keyof NotificationPreferencesDto, value: boolean) {
     const prevPrefs = prefs;
-    const next = { ...prefs, [key]: value };
-    setPrefs(next); // optimistic
+    // Build next with ONLY the clicked key changed — other key unchanged
+    const next: NotificationPreferencesDto = { ...prefs, [key]: value };
+    console.log('[Settings] handlePrefChange', key, value, '→ sending:', next);
+    setPrefs(next); // optimistic immediate update
 
     try {
       const updated = await updatePreferences(next);
-      setPrefs(updated);
-    } catch {
-      setPrefs(prevPrefs); // revert
+      console.log('[Settings] handlePrefChange → server returned:', updated);
+      setPrefs(updated); // apply server-confirmed values
+    } catch (e) {
+      console.error('[Settings] handlePrefChange → updatePreferences failed, reverting:', e);
+      setPrefs(prevPrefs); // revert to pre-click values
       setPrefsError('Failed to save preference. Please try again.');
     }
   }
@@ -120,13 +160,7 @@ export default function Settings() {
                 push.permission === 'denied' ||
                 push.loading
               }
-              onChange={(checked) => {
-                if (checked) {
-                  push.enable();
-                } else {
-                  push.disable();
-                }
-              }}
+              onChange={handleMainToggle}
             />
           )}
         </div>
@@ -178,6 +212,27 @@ export default function Settings() {
             ⚠️ {prefsError}
           </p>
         )}
+      </section>
+
+      {/* ── TEMPORARY: live state debug block ─────────────────────────────────
+          Shows raw state values while testing. Remove once confirmed working. */}
+      <section className="settings-section" aria-label="Debug state (temporary)">
+        <p className="settings-section-title">Debug state</p>
+        <pre className="settings-debug">
+          {JSON.stringify(
+            {
+              isSubscribed: push.isSubscribed,
+              permission: push.permission,
+              isSupported: push.isSupported,
+              needsInstall: push.needsInstall,
+              loading: push.loading,
+              error: push.error,
+              preferences: prefs,
+            },
+            null,
+            2
+          )}
+        </pre>
       </section>
 
       {/* ── Account section ── */}

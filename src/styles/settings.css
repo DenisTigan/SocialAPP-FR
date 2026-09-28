@@ -237,3 +237,18 @@
   outline: 2px solid var(--accent-start);
   outline-offset: 2px;
 }
+
+/* ── TEMPORARY: debug state pre block ── */
+.settings-debug {
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.72rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  overflow-x: auto;
+  white-space: pre;
+  margin: 0;
+}

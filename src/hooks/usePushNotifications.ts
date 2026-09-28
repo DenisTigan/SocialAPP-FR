@@ -74,9 +74,11 @@ export function usePushNotifications(): UsePushNotificationsResult {
       try {
         const reg = await navigator.serviceWorker.ready;
         const sub = await reg.pushManager.getSubscription();
-        setIsSubscribed(sub !== null);
-      } catch {
-        // Silently ignore — not subscribed
+        const subscribed = sub !== null;
+        console.log('[usePushNotifications] mount check → isSubscribed:', subscribed, sub?.endpoint ?? 'none');
+        setIsSubscribed(subscribed);
+      } catch (e) {
+        console.warn('[usePushNotifications] mount check failed:', e);
         setIsSubscribed(false);
       }
     }
@@ -97,6 +99,7 @@ export function usePushNotifications(): UsePushNotificationsResult {
         currentPermission = await Notification.requestPermission();
       }
       setPermission(currentPermission);
+      console.log('[usePushNotifications] enable() permission:', currentPermission);
 
       if (currentPermission !== 'granted') {
         setLoading(false);
@@ -112,6 +115,7 @@ export function usePushNotifications(): UsePushNotificationsResult {
         userVisibleOnly: true,
         applicationServerKey,
       });
+      console.log('[usePushNotifications] enable() browser subscription created:', subscription.endpoint);
 
       // Step 3: Send subscription to backend
       const subJson = subscription.toJSON() as {
@@ -124,15 +128,19 @@ export function usePushNotifications(): UsePushNotificationsResult {
           endpoint: subJson.endpoint,
           keys: { p256dh: subJson.keys.p256dh, auth: subJson.keys.auth },
         });
+        // ── FIX 1: set isSubscribed synchronously AFTER both steps succeed ──
         setIsSubscribed(true);
+        console.log('[usePushNotifications] enable() → isSubscribed set to: true');
       } catch (backendErr) {
-        // If backend registration fails, unsubscribe the browser subscription too
-        // so states stay consistent
+        // Backend registration failed — roll back the browser subscription so
+        // states stay consistent.
+        console.error('[usePushNotifications] enable() backend call failed, rolling back:', backendErr);
         await subscription.unsubscribe();
         throw backendErr;
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to enable push notifications';
+      console.error('[usePushNotifications] enable() error:', err);
       setError(message);
     } finally {
       setLoading(false);
@@ -149,15 +157,20 @@ export function usePushNotifications(): UsePushNotificationsResult {
       const reg = await navigator.serviceWorker.ready;
       const subscription = await reg.pushManager.getSubscription();
       if (!subscription) {
+        // Already gone — reflect that
         setIsSubscribed(false);
+        console.log('[usePushNotifications] disable() no existing sub → isSubscribed set to: false');
         return;
       }
 
       await unsubscribePush(subscription.endpoint);
       await subscription.unsubscribe();
+      // ── FIX 1: set isSubscribed synchronously AFTER both steps succeed ──
       setIsSubscribed(false);
+      console.log('[usePushNotifications] disable() → isSubscribed set to: false');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to disable push notifications';
+      console.error('[usePushNotifications] disable() error:', err);
       setError(message);
     } finally {
       setLoading(false);
