@@ -150,6 +150,55 @@
   box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
 }
 
+/* ── Password input wrapper (show/hide toggle) ── */
+.auth-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Extra right padding so text never slides under the toggle button */
+.auth-input--with-icon {
+  padding-right: 42px;
+}
+
+.auth-pw-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.auth-pw-toggle:hover {
+  color: var(--accent-start);
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.auth-pw-toggle:focus-visible {
+  outline: 2px solid var(--accent-start);
+  outline-offset: 1px;
+}
+
+.auth-pw-toggle svg {
+  display: block;
+  pointer-events: none;
+}
+
 /* ── Primary button ── */
 .auth-btn {
   width: 100%;
