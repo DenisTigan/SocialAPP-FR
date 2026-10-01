@@ -391,6 +391,9 @@
 }
 
 .photo-card-comment-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 0.85rem;
   line-height: 1.5;
   color: var(--text-secondary);

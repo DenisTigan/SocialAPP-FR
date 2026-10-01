@@ -5,6 +5,7 @@ export interface PhotoResponse {
   id: string;           // format: uuid
   userId: string;       // format: uuid
   username: string;
+  avatarUrl?: string;   // optional — added in API update
   imageUrl: string;
   caption: string;
   createdAt: string;    // format: date-time
@@ -20,6 +21,7 @@ export interface CommentResponse {
   id: string;           // format: uuid
   userId: string;       // format: uuid
   username: string;
+  avatarUrl?: string;   // optional — added in API update
   text: string;
   createdAt: string;    // format: date-time
 }
@@ -77,15 +79,33 @@ export interface PagePhotoResponse {
 }
 
 export interface ConversationResponse {
-  partnerId: string;        // format: uuid
+  partnerId: string;          // format: uuid
   partnerUsername: string;
+  partnerAvatarUrl?: string;  // optional — added in API update
   lastMessage: string;
-  timestamp: string;        // format: date-time
+  timestamp: string;          // format: date-time
 }
 
 export interface UserResponse {
   id: string;               // format: uuid
   username: string;
+  avatarUrl?: string;       // optional — added in API update
+}
+
+// ── User Profile types (new in API update) ───────────────────────────────────
+
+export interface UserProfileResponse {
+  id: string;               // format: uuid
+  username: string;
+  bio: string;
+  avatarUrl?: string;
+  createdAt: string;        // format: date-time
+  postsCount: number;       // format: int64
+  totalLikesReceived: number; // format: int64
+}
+
+export interface UpdateBioRequest {
+  bio: string;
 }
 
 // ── Notification types (from OpenAPI spec) ────────────────────────────────

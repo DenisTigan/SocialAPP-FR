@@ -3,6 +3,7 @@ import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { getChatHistory, sendMessage } from '../api/messages';
 import { useAuth } from '../context/AuthContext';
 import type { MessageResponse } from '../types/api';
+import Avatar from '../components/Avatar';
 import '../styles/messages.css';
 
 const POLL_MS = 5000;
@@ -115,7 +116,7 @@ export default function Chat() {
     if (e.key === 'Enter' && !e.shiftKey) handleSend();
   }
 
-  const avatarLetter = partnerUsername[0]?.toUpperCase() ?? '?';
+
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -130,7 +131,7 @@ export default function Chat() {
         >
           ‹
         </button>
-        <div className="chat-header-avatar" aria-hidden="true">{avatarLetter}</div>
+        <Avatar avatarUrl={undefined} username={partnerUsername} size="sm" />
         <span className="chat-header-name">{partnerUsername}</span>
       </header>
 

@@ -1,7 +1,32 @@
+import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useUnread } from '../context/UnreadContext';
+import { getMyProfile } from '../api/users';
+import Avatar from './Avatar';
 import '../styles/bottom-nav.css';
+
+// ── Lightweight module-level cache (shares data with Navbar cache implicitly) ──
+// We duplicate the tiny cache pattern here so BottomNav is self-contained and
+// doesn't create a circular import with Navbar.
+let _avatarCache: { avatarUrl?: string } | null = null;
+let _avatarPromise: Promise<{ avatarUrl?: string }> | null = null;
+
+function fetchAvatarOnce(): Promise<{ avatarUrl?: string }> {
+  if (_avatarCache) return Promise.resolve(_avatarCache);
+  if (!_avatarPromise) {
+    _avatarPromise = getMyProfile()
+      .then((p) => {
+        _avatarCache = { avatarUrl: p.avatarUrl };
+        return _avatarCache;
+      })
+      .catch(() => {
+        _avatarPromise = null;
+        return {};
+      });
+  }
+  return _avatarPromise;
+}
 
 /**
  * BottomNav — Mobile-only fixed bottom tab bar.
@@ -11,8 +36,17 @@ import '../styles/bottom-nav.css';
 export default function BottomNav() {
   const { user } = useAuth();
   const { unreadCount } = useUnread();
-  const avatarLetter = (user?.username?.[0] ?? '?').toUpperCase();
   const profileId = user?.userId ?? '';
+  const [myAvatarUrl, setMyAvatarUrl] = useState<string | undefined>(
+    _avatarCache?.avatarUrl
+  );
+
+  useEffect(() => {
+    if (!user) return;
+    fetchAvatarOnce().then((p) => {
+      setMyAvatarUrl(p.avatarUrl);
+    });
+  }, [user]);
 
   return (
     <nav className="bottom-nav" role="navigation" aria-label="Mobile navigation">
@@ -77,7 +111,9 @@ export default function BottomNav() {
         aria-label="My profile"
       >
         <span className="bnav-icon bnav-avatar-icon" aria-hidden="true">
-          {avatarLetter}
+          {user ? (
+            <Avatar avatarUrl={myAvatarUrl} username={user.username} size="sm" />
+          ) : null}
         </span>
         <span className="bnav-label">Profile</span>
       </NavLink>

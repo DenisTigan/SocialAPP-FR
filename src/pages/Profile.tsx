@@ -1,23 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getFeed } from '../api/photos';
-import { getAllUsers } from '../api/users';
+import { getUserProfile, getUserPhotos } from '../api/users';
 import { useAuth } from '../context/AuthContext';
-import type { PhotoResponse } from '../types/api';
+import type { UserProfileResponse, PhotoResponse } from '../types/api';
+import Avatar from '../components/Avatar';
+import EditProfileModal from '../components/EditProfileModal';
 import '../styles/profile.css';
-
-/**
- * TEMPORARY: We gather this user's photos by fetching the global feed across
- * multiple pages and filtering client-side by photo.userId === profileUserId.
- *
- * This should be replaced once a dedicated backend endpoint exists, e.g.:
- *   GET /api/photos/user/{userId}  → PhotoResponse[]
- *
- * The number of pages fetched (MAX_PAGES) is a best-effort heuristic; in a
- * large dataset some photos may not appear if they fall beyond page MAX_PAGES.
- */
-const FEED_PAGE_SIZE = 20;
-const MAX_PAGES = 5; // fetch up to 5 pages × 20 = 100 photos to filter from
 
 type LoadState = 'loading' | 'ok' | 'not-found' | 'error';
 
@@ -26,9 +14,10 @@ export default function Profile() {
   const navigate = useNavigate();
   const { user: me, logoutUser } = useAuth();
 
+  const [profile, setProfile] = useState<UserProfileResponse | null>(null);
   const [photos, setPhotos] = useState<PhotoResponse[]>([]);
-  const [username, setUsername] = useState<string>('');
   const [loadState, setLoadState] = useState<LoadState>('loading');
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const isOwnProfile = me?.userId === profileUserId;
 
@@ -38,43 +27,14 @@ export default function Profile() {
       return;
     }
     setLoadState('loading');
-
     try {
-      // ── Step 1: collect photos from feed, filtering by userId ──────────────
-      // TEMPORARY client-side filter (see module comment above)
-      const collected: PhotoResponse[] = [];
-      let page = 0;
-      let isLast = false;
-
-      while (page < MAX_PAGES && !isLast) {
-        const data = await getFeed(page, FEED_PAGE_SIZE);
-        const matching = data.content.filter((p) => p.userId === profileUserId);
-        collected.push(...matching);
-        isLast = data.last;
-        page++;
-      }
-
-      // ── Step 2: resolve username ───────────────────────────────────────────
-      let resolvedUsername = collected[0]?.username ?? '';
-
-      if (!resolvedUsername) {
-        // Fallback: look up username via /api/users
-        try {
-          const allUsers = await getAllUsers();
-          const found = allUsers.find((u) => u.id === profileUserId);
-          resolvedUsername = found?.username ?? '';
-        } catch {
-          // silently ignore — we'll show "not found" below
-        }
-      }
-
-      if (!resolvedUsername && collected.length === 0) {
-        setLoadState('not-found');
-        return;
-      }
-
-      setPhotos(collected);
-      setUsername(resolvedUsername);
+      // Fetch profile and photos in parallel
+      const [profileData, photosData] = await Promise.all([
+        getUserProfile(profileUserId),
+        getUserPhotos(profileUserId),
+      ]);
+      setProfile(profileData);
+      setPhotos(photosData);
       setLoadState('ok');
     } catch {
       setLoadState('error');
@@ -87,7 +47,7 @@ export default function Profile() {
 
   function handleMessage() {
     navigate(`/messages/${profileUserId}`, {
-      state: { partnerUsername: username },
+      state: { partnerUsername: profile?.username },
     });
   }
 
@@ -95,8 +55,6 @@ export default function Profile() {
     logoutUser();
     navigate('/login', { replace: true });
   }
-
-  const avatarLetter = (username[0] ?? '?').toUpperCase();
 
   // ── Loading ────────────────────────────────────────────────────────────────
   if (loadState === 'loading') {
@@ -119,7 +77,7 @@ export default function Profile() {
           <div className="profile-not-found" role="alert">
             <div className="profile-not-found-icon" aria-hidden="true">🔍</div>
             <h2>User not found</h2>
-            <p>This profile doesn't exist or has no activity yet.</p>
+            <p>This profile doesn't exist or has been removed.</p>
           </div>
         </div>
       </div>
@@ -150,29 +108,60 @@ export default function Profile() {
     );
   }
 
+  const username = profile!.username;
+  const bio = profile!.bio;
+  const postsCount = profile!.postsCount;
+  const totalLikes = profile!.totalLikesReceived;
+
   // ── Main render ────────────────────────────────────────────────────────────
   return (
     <div className="profile-page">
       <div className="profile-inner">
         {/* ── Header card ── */}
         <div className="profile-header">
-          <div className="profile-avatar" aria-hidden="true">
-            {avatarLetter}
+          {/* Avatar — large */}
+          <div className="profile-avatar-wrap">
+            <Avatar avatarUrl={profile!.avatarUrl} username={username} size="lg" />
           </div>
 
           <div className="profile-header-info">
             <h1 className="profile-username">{username}</h1>
-            <p className="profile-post-count">
-              {photos.length} {photos.length === 1 ? 'post' : 'posts'}
+
+            {/* Bio */}
+            <p className="profile-bio">
+              {bio || <span className="profile-bio-placeholder">No bio yet.</span>}
             </p>
 
+            {/* Stats row */}
+            <div className="profile-stats-row">
+              <span className="profile-stat">
+                <span className="profile-stat-value">{postsCount}</span>
+                <span className="profile-stat-label">{postsCount === 1 ? 'post' : 'posts'}</span>
+              </span>
+              <span className="profile-stat-divider" aria-hidden="true">·</span>
+              <span className="profile-stat">
+                <span className="profile-stat-value">{totalLikes}</span>
+                <span className="profile-stat-label">{totalLikes === 1 ? 'like' : 'likes'}</span>
+              </span>
+            </div>
+
+            {/* Actions */}
             <div className="profile-actions">
               {isOwnProfile ? (
                 <>
+                  <button
+                    id="profile-edit-btn"
+                    className="profile-msg-btn"
+                    onClick={() => setEditModalOpen(true)}
+                    aria-label="Edit profile"
+                  >
+                    <span aria-hidden="true">✏️</span>
+                    Edit profile
+                  </button>
                   <Link
                     to="/settings"
                     id="profile-settings-link"
-                    className="profile-msg-btn"
+                    className="profile-logout-btn"
                     aria-label="Go to settings"
                   >
                     <span aria-hidden="true">⚙️</span>
@@ -224,7 +213,7 @@ export default function Profile() {
               {photos.map((photo) => (
                 <Link
                   key={photo.id}
-                  to={`/feed`}
+                  to="/feed"
                   className="profile-grid-item"
                   role="listitem"
                   aria-label={photo.caption || `Photo by ${username}`}
@@ -246,6 +235,20 @@ export default function Profile() {
           </>
         )}
       </div>
+
+      {/* ── Edit profile modal — lazy import to keep bundle small ── */}
+      {editModalOpen && profile && (
+        <EditProfileModal
+          profile={profile}
+          onClose={() => setEditModalOpen(false)}
+          onSaved={(updated) => {
+            setProfile(updated);
+            setEditModalOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }
+
+

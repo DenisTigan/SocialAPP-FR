@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getInbox } from '../api/messages';
 import type { ConversationResponse } from '../types/api';
+import Avatar from '../components/Avatar';
 import '../styles/messages.css';
 
 const POLL_MS = 5000;
@@ -86,9 +87,7 @@ export default function Messages() {
                 onKeyDown={(e) => e.key === 'Enter' && handleOpen(c)}
                 aria-label={`Conversation with ${c.partnerUsername}`}
               >
-                <div className="inbox-avatar" aria-hidden="true">
-                  {c.partnerUsername[0].toUpperCase()}
-                </div>
+                <Avatar avatarUrl={c.partnerAvatarUrl} username={c.partnerUsername} size="md" />
                 <div className="inbox-row-body">
                   <div className="inbox-row-top">
                     <span className="inbox-username">{c.partnerUsername}</span>

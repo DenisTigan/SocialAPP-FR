@@ -1,0 +1,323 @@
+/* ============================================================
+   edit-profile.css — Edit Profile Modal
+   Follows the UploadModal visual pattern.
+   Uses theme.css tokens exclusively — no hardcoded colors.
+   ============================================================ */
+
+/* ── Overlay (backdrop) ── */
+.ep-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: epFadeIn 0.18s ease both;
+}
+
+@keyframes epFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Modal card ── */
+.ep-modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 440px;
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  animation: epSlideUp 0.22s ease both;
+}
+
+@keyframes epSlideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Header ── */
+.ep-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 0;
+}
+
+.ep-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.ep-close-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.ep-close-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ep-close-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Body ── */
+.ep-body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 20px 24px 24px;
+}
+
+/* ── Avatar section ── */
+.ep-avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.ep-avatar-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Camera icon overlay on avatar */
+.ep-avatar-overlay-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-secondary);
+  background: var(--accent-gradient);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: 0 2px 10px rgba(139, 92, 246, 0.5);
+}
+
+.ep-avatar-overlay-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.65);
+}
+
+.ep-avatar-overlay-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ep-change-photo-text-btn {
+  border: none;
+  background: transparent;
+  color: var(--accent-start);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: opacity var(--transition-fast);
+}
+
+.ep-change-photo-text-btn:hover {
+  opacity: 0.8;
+}
+
+.ep-change-photo-text-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ep-preview-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ── Bio field ── */
+.ep-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ep-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
+}
+
+.ep-textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 90px;
+  padding: 12px 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  box-sizing: border-box;
+}
+
+.ep-textarea:focus {
+  outline: none;
+  border-color: var(--accent-start);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.18);
+}
+
+.ep-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.ep-textarea--over {
+  border-color: var(--danger);
+}
+
+.ep-textarea--over:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18);
+}
+
+.ep-textarea:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Character counter */
+.ep-char-counter {
+  text-align: right;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.ep-char-counter--over {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+/* ── Error ── */
+.ep-error {
+  padding: 10px 14px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-sm);
+  color: #fca5a5;
+  font-size: 0.875rem;
+}
+
+/* ── Action buttons ── */
+.ep-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.ep-cancel-btn {
+  padding: 10px 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 50px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 44px;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.ep-cancel-btn:hover {
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.ep-cancel-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ep-save-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 50px;
+  background: var(--accent-gradient);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.ep-save-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(139, 92, 246, 0.55);
+}
+
+.ep-save-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.ep-save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Spinner inside save button */
+.ep-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: epSpin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes epSpin {
+  to { transform: rotate(360deg); }
+}

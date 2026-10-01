@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { PhotoResponse, CommentResponse } from '../types/api';
 import { toggleLike, getComments, addComment } from '../api/photos';
+import Avatar from './Avatar';
 import '../styles/feed.css';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -23,9 +24,7 @@ function relativeTime(iso: string): string {
   return `${Math.floor(days / 365)}y ago`;
 }
 
-function avatarLetter(username: string): string {
-  return (username?.[0] ?? '?').toUpperCase();
-}
+
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -120,9 +119,7 @@ export default function PhotoCard({ photo, onLikeToggle }: PhotoCardProps) {
     <article className="photo-card">
       {/* ── Header ── */}
       <div className="photo-card-header">
-        <div className="photo-card-avatar" aria-hidden="true">
-          {avatarLetter(photo.username)}
-        </div>
+        <Avatar avatarUrl={photo.avatarUrl} username={photo.username} size="sm" />
         <div className="photo-card-meta">
           <Link
             to={`/profile/${photo.userId}`}
@@ -194,6 +191,7 @@ export default function PhotoCard({ photo, onLikeToggle }: PhotoCardProps) {
           ) : (
             comments.map((c) => (
               <div key={c.id} className="photo-card-comment-item">
+                <Avatar avatarUrl={c.avatarUrl} username={c.username} size="sm" />
                 <Link
                   to={`/profile/${c.userId}`}
                   className="photo-card-comment-username-link"

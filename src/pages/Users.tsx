@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { getAllUsers } from '../api/users';
 import { useAuth } from '../context/AuthContext';
 import type { UserResponse } from '../types/api';
+import Avatar from '../components/Avatar';
 import '../styles/users.css';
 
 export default function Users() {
@@ -87,12 +88,7 @@ export default function Users() {
           <ul className="users-list" role="list" aria-label="User list">
             {filtered.map((u) => (
               <li key={u.id} className="users-row" role="listitem">
-                <div
-                  className="users-row-avatar"
-                  aria-hidden="true"
-                >
-                  {u.username[0].toUpperCase()}
-                </div>
+                <Avatar avatarUrl={u.avatarUrl} username={u.username} size="md" />
                 <div className="users-row-info">
                   <Link
                     to={`/profile/${u.id}`}

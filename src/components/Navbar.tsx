@@ -1,20 +1,65 @@
+import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useUnread } from '../context/UnreadContext';
+import { getMyProfile } from '../api/users';
+import Avatar from './Avatar';
 import Toast from './Toast';
 import '../styles/navbar.css';
+
+// ── Module-level cache so getMyProfile() is called at most once per session ──
+let profileCache: { avatarUrl?: string } | null = null;
+let profilePromise: Promise<{ avatarUrl?: string }> | null = null;
+
+function fetchMyAvatarOnce(): Promise<{ avatarUrl?: string }> {
+  if (profileCache) return Promise.resolve(profileCache);
+  if (!profilePromise) {
+    profilePromise = getMyProfile()
+      .then((p) => {
+        profileCache = { avatarUrl: p.avatarUrl };
+        return profileCache;
+      })
+      .catch(() => {
+        profilePromise = null; // allow retry on next mount if it failed
+        return {};
+      });
+  }
+  return profilePromise;
+}
+
+/** Call this from outside (e.g. EditProfileModal) to bust the cache after an avatar update. */
+export function invalidateNavbarAvatarCache(newAvatarUrl?: string) {
+  if (newAvatarUrl !== undefined) {
+    profileCache = { avatarUrl: newAvatarUrl };
+  } else {
+    profileCache = null;
+    profilePromise = null;
+  }
+}
 
 export default function Navbar() {
   const { user, logoutUser } = useAuth();
   const navigate = useNavigate();
   const { unreadCount, toasts, dismissToast } = useUnread();
+  const [myAvatarUrl, setMyAvatarUrl] = useState<string | undefined>(
+    profileCache?.avatarUrl
+  );
+
+  // Fetch my avatar once on mount (uses cache after first load)
+  useEffect(() => {
+    if (!user) return;
+    fetchMyAvatarOnce().then((p) => {
+      setMyAvatarUrl(p.avatarUrl);
+    });
+  }, [user]);
 
   function handleLogout() {
+    // Clear cache on logout so next user starts fresh
+    profileCache = null;
+    profilePromise = null;
     logoutUser();
     navigate('/login', { replace: true });
   }
-
-  const avatarLetter = (user?.username?.[0] ?? '?').toUpperCase();
 
   return (
     <>
@@ -100,11 +145,11 @@ export default function Navbar() {
 
           {user && (
             <div
-              className="navbar-avatar"
+              className="navbar-avatar-wrap"
               title={user.username}
               aria-label={`Logged in as ${user.username}`}
             >
-              {avatarLetter}
+              <Avatar avatarUrl={myAvatarUrl} username={user.username} size="sm" />
             </div>
           )}
           <button
