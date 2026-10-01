@@ -21,6 +21,11 @@ export default function Profile() {
 
   const isOwnProfile = me?.userId === profileUserId;
 
+  // Remove a deleted photo from local list without refetching
+  const handlePhotoDeleted = useCallback((photoId: string) => {
+    setPhotos((prev) => prev.filter((p) => p.id !== photoId));
+  }, []);
+
   const fetchProfile = useCallback(async () => {
     if (!profileUserId) {
       setLoadState('not-found');

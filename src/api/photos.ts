@@ -4,6 +4,7 @@ import type {
   PhotoResponse,
   CommentRequest,
   CommentResponse,
+  UpdatePhotoRequest,
 } from '../types/api';
 
 /** GET /api/photos/feed */
@@ -48,4 +49,37 @@ export async function addComment(
     data
   );
   return response.data;
+}
+
+/** PUT /api/photos/{photoId} — edit caption (owner only, enforced server-side) */
+export async function updatePhotoCaption(
+  photoId: string,
+  caption: string
+): Promise<PhotoResponse> {
+  const body: UpdatePhotoRequest = { caption };
+  const response = await apiClient.put<PhotoResponse>(`/api/photos/${photoId}`, body);
+  return response.data;
+}
+
+/** DELETE /api/photos/{photoId} — owner only, enforced server-side */
+export async function deletePhoto(photoId: string): Promise<void> {
+  await apiClient.delete(`/api/photos/${photoId}`);
+}
+
+/** PUT /api/photos/comments/{commentId} — edit comment text (owner only) */
+export async function updateComment(
+  commentId: string,
+  text: string
+): Promise<CommentResponse> {
+  const body: CommentRequest = { text };
+  const response = await apiClient.put<CommentResponse>(
+    `/api/photos/comments/${commentId}`,
+    body
+  );
+  return response.data;
+}
+
+/** DELETE /api/photos/comments/{commentId} — owner only */
+export async function deleteComment(commentId: string): Promise<void> {
+  await apiClient.delete(`/api/photos/comments/${commentId}`);
 }

@@ -108,6 +108,10 @@ export interface UpdateBioRequest {
   bio: string;
 }
 
+export interface UpdatePhotoRequest {
+  caption: string;
+}
+
 // ── Notification types (from OpenAPI spec) ────────────────────────────────
 
 export interface NotificationPreferencesDto {

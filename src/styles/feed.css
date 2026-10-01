@@ -411,6 +411,261 @@
   color: var(--accent-start);
 }
 
+/* ════════════════════════════════════════
+   THREE-DOT MENU (photo card header)
+   ════════════════════════════════════════ */
+.pc-dot-menu {
+  position: relative;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.pc-dot-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: color var(--transition-fast), background var(--transition-fast);
+  letter-spacing: 0.05em;
+}
+
+.pc-dot-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.pc-dot-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 150px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  z-index: 50;
+  animation: dotMenuIn 0.12s ease both;
+}
+
+@keyframes dotMenuIn {
+  from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.pc-dot-item {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.pc-dot-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+}
+
+.pc-dot-item--danger {
+  color: var(--danger);
+}
+
+.pc-dot-item--danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+}
+
+/* ════════════════════════════════════════
+   INLINE CAPTION EDITOR
+   ════════════════════════════════════════ */
+.pc-caption-edit {
+  padding: 6px 16px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pc-caption-input {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--accent-start);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.15);
+  box-sizing: border-box;
+  transition: border-color var(--transition-fast);
+}
+
+.pc-caption-input::placeholder {
+  color: var(--text-muted);
+}
+
+.pc-caption-edit-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ════════════════════════════════════════
+   SHARED INLINE EDIT SAVE/CANCEL BUTTONS
+   ════════════════════════════════════════ */
+.pc-edit-cancel-btn {
+  padding: 5px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 50px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  min-height: 30px;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.pc-edit-cancel-btn:hover {
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.pc-edit-cancel-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pc-edit-save-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 16px;
+  border: none;
+  border-radius: 50px;
+  background: var(--accent-gradient);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 30px;
+  transition: opacity var(--transition-fast);
+}
+
+.pc-edit-save-btn:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.pc-edit-save-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ════════════════════════════════════════
+   COMMENT BODY LAYOUT (normal display)
+   ════════════════════════════════════════ */
+.pc-comment-body {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.pc-comment-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Owner action links — Edit · Delete */
+.pc-comment-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+/* Show on hover of the parent comment item */
+.photo-card-comment-item:hover .pc-comment-actions {
+  opacity: 1;
+}
+
+.pc-comment-action-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0 2px;
+  transition: color var(--transition-fast);
+}
+
+.pc-comment-action-btn:hover {
+  color: var(--text-secondary);
+}
+
+.pc-comment-action-btn--danger:hover {
+  color: var(--danger);
+}
+
+.pc-comment-action-sep {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* ════════════════════════════════════════
+   INLINE COMMENT EDITOR
+   ════════════════════════════════════════ */
+.pc-comment-edit-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.pc-comment-edit-input {
+  width: 100%;
+  padding: 6px 10px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--accent-start);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.12);
+  box-sizing: border-box;
+}
+
+.pc-comment-edit-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+/* ── Inline error label (shared) ── */
+.pc-inline-error {
+  font-size: 0.75rem;
+  color: var(--danger);
+  flex: 1;
+}
+
 .photo-card-comments-empty {
   font-size: 0.8125rem;
   color: var(--text-muted);

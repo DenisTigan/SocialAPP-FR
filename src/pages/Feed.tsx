@@ -97,6 +97,11 @@ export default function Feed() {
     []
   );
 
+  // ── Photo deleted: remove from list without refetch ───────────────────────
+  const handlePhotoDeleted = useCallback((photoId: string) => {
+    setPhotos((prev) => prev.filter((p) => p.id !== photoId));
+  }, []);
+
   // ── Upload success: prepend new photo ─────────────────────────────────────
   const handleUploaded = useCallback((photo: PhotoResponse) => {
     setPhotos((prev) => [photo, ...prev]);
@@ -153,6 +158,7 @@ export default function Feed() {
             key={photo.id}
             photo={photo}
             onLikeToggle={handleLikeToggle}
+            onDeleted={handlePhotoDeleted}
           />
         ))}
 
