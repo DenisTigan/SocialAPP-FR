@@ -3,22 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { getInbox } from '../api/messages';
 import type { ConversationResponse } from '../types/api';
 import Avatar from '../components/Avatar';
+import { formatInboxTimestamp } from '../utils/formatDate';
 import '../styles/messages.css';
 
 const POLL_MS = 5000;
 
-function relativeTime(iso: string): string {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const secs = Math.floor(diffMs / 1000);
-  if (secs < 60) return 'just now';
-  const mins = Math.floor(secs / 60);
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  if (days < 7) return `${days}d ago`;
-  return `${Math.floor(days / 7)}w ago`;
-}
 
 function truncate(s: string, max = 60): string {
   return s.length > max ? s.slice(0, max) + '…' : s;
@@ -91,7 +80,9 @@ export default function Messages() {
                 <div className="inbox-row-body">
                   <div className="inbox-row-top">
                     <span className="inbox-username">{c.partnerUsername}</span>
-                    <span className="inbox-time">{relativeTime(c.timestamp)}</span>
+                    <time className="inbox-time" dateTime={c.timestamp}>
+                      {formatInboxTimestamp(c.timestamp)}
+                    </time>
                   </div>
                   <div className="inbox-last-msg">{truncate(c.lastMessage)}</div>
                 </div>

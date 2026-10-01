@@ -305,7 +305,6 @@
 }
 
 .chat-bubble {
-  max-width: 75%;
   padding: 10px 14px;
   border-radius: 18px;
   font-size: 0.9375rem;
@@ -327,6 +326,66 @@
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-bottom-left-radius: 5px;
+}
+
+/* ── Bubble wrapper (bubble + time label stacked) ── */
+.chat-bubble-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 75%;
+}
+
+/* Inherit max-width from wrap, not bubble directly */
+.chat-bubble-wrap .chat-bubble {
+  max-width: 100%;
+}
+
+/* Time label below each bubble */
+.chat-bubble-time {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* My messages: time right-aligned */
+.chat-bubble-row.mine .chat-bubble-time {
+  text-align: right;
+}
+
+/* Their messages: time left-aligned */
+.chat-bubble-row.theirs .chat-bubble-time {
+  text-align: left;
+}
+
+/* ── Date separator ── */
+.chat-date-sep {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 6px;
+}
+
+.chat-date-sep::before,
+.chat-date-sep::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-color);
+}
+
+.chat-date-sep-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 3px 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 50px;
 }
 
 /* ── Chat states ── */

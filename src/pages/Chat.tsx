@@ -4,9 +4,16 @@ import { getChatHistory, sendMessage } from '../api/messages';
 import { useAuth } from '../context/AuthContext';
 import type { MessageResponse } from '../types/api';
 import Avatar from '../components/Avatar';
+import { formatMessageTime, formatMessageDate } from '../utils/formatDate';
 import '../styles/messages.css';
 
 const POLL_MS = 5000;
+
+/** Returns a "YYYY-MM-DD" key in local time, used to detect date changes between messages. */
+function localDateKey(isoString: string): string {
+  const d = new Date(isoString);
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
 
 export default function Chat() {
   const { partnerId } = useParams<{ partnerId: string }>();
@@ -116,8 +123,6 @@ export default function Chat() {
     if (e.key === 'Enter' && !e.shiftKey) handleSend();
   }
 
-
-
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="chat-page">
@@ -166,14 +171,38 @@ export default function Chat() {
             </div>
           )}
 
-          {messages.map((m) => {
+          {messages.map((m, i) => {
             const isMine = m.senderId === me?.userId;
+
+            // ── Date separator: show when date changes vs previous message ──
+            const prevKey = i > 0 ? localDateKey(messages[i - 1].createdAt) : null;
+            const thisKey = localDateKey(m.createdAt);
+            const showDateSep = prevKey !== thisKey;
+
             return (
-              <div
-                key={m.id}
-                className={`chat-bubble-row ${isMine ? 'mine' : 'theirs'}`}
-              >
-                <div className="chat-bubble">{m.content}</div>
+              <div key={m.id}>
+                {/* Date separator */}
+                {showDateSep && (
+                  <div className="chat-date-sep" aria-label={formatMessageDate(m.createdAt)}>
+                    <span className="chat-date-sep-label">
+                      {formatMessageDate(m.createdAt)}
+                    </span>
+                  </div>
+                )}
+
+                {/* Bubble row */}
+                <div className={`chat-bubble-row ${isMine ? 'mine' : 'theirs'}`}>
+                  <div className="chat-bubble-wrap">
+                    <div className="chat-bubble">{m.content}</div>
+                    <time
+                      className="chat-bubble-time"
+                      dateTime={m.createdAt}
+                      aria-label={`Sent at ${formatMessageTime(m.createdAt)}`}
+                    >
+                      {formatMessageTime(m.createdAt)}
+                    </time>
+                  </div>
+                </div>
               </div>
             );
           })}
