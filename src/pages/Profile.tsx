@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import type { UserProfileResponse, PhotoResponse } from '../types/api';
 import Avatar from '../components/Avatar';
 import EditProfileModal from '../components/EditProfileModal';
+import PhotoCard from '../components/PhotoCard';
 import '../styles/profile.css';
 
 type LoadState = 'loading' | 'ok' | 'not-found' | 'error';
@@ -21,6 +22,24 @@ export default function Profile() {
 
   const isOwnProfile = me?.userId === profileUserId;
 
+  // Remove a deleted photo from the local list without refetching
+  const handlePhotoDeleted = useCallback((photoId: string) => {
+    setPhotos((prev) => prev.filter((p) => p.id !== photoId));
+  }, []);
+
+  // Keep the local like count in sync if user likes from the profile grid
+  const handleLikeToggle = useCallback(
+    (photoId: string, liked: boolean, newCount: number) => {
+      setPhotos((prev) =>
+        prev.map((p) =>
+          p.id === photoId
+            ? { ...p, isLikedByCurrentUser: liked, likeCount: newCount }
+            : p
+        )
+      );
+    },
+    []
+  );
 
 
   const fetchProfile = useCallback(async () => {
@@ -213,25 +232,13 @@ export default function Profile() {
               aria-label={`${username}'s photos`}
             >
               {photos.map((photo) => (
-                <Link
-                  key={photo.id}
-                  to="/feed"
-                  className="profile-grid-item"
-                  role="listitem"
-                  aria-label={photo.caption || `Photo by ${username}`}
-                  title={photo.caption || undefined}
-                >
-                  <img
-                    src={photo.imageUrl}
-                    alt={photo.caption || `Photo by ${username}`}
-                    loading="lazy"
+                <div key={photo.id} className="profile-grid-item" role="listitem">
+                  <PhotoCard
+                    photo={photo}
+                    onLikeToggle={handleLikeToggle}
+                    onDeleted={handlePhotoDeleted}
                   />
-                  <div className="profile-grid-overlay" aria-hidden="true">
-                    <span className="profile-grid-stat">
-                      ❤️ {photo.likeCount}
-                    </span>
-                  </div>
-                </Link>
+                </div>
               ))}
             </div>
           </>
