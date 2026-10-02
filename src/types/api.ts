@@ -36,6 +36,8 @@ export interface MessageResponse {
   receiverId: string;   // format: uuid
   content: string;
   createdAt: string;    // format: date-time
+  isRead?: boolean;     // added: read receipt flag
+  readAt?: string;      // added: format: date-time
 }
 
 export interface VerifyRequest {
@@ -79,17 +81,22 @@ export interface PagePhotoResponse {
 }
 
 export interface ConversationResponse {
-  partnerId: string;          // format: uuid
+  partnerId: string;            // format: uuid
   partnerUsername: string;
-  partnerAvatarUrl?: string;  // optional — added in API update
+  partnerAvatarUrl?: string;    // optional — added in API update
+  partnerOnline?: boolean;      // added: real-time online status
   lastMessage: string;
-  timestamp: string;          // format: date-time
+  timestamp: string;            // format: date-time
+  lastMessageSenderId?: string; // format: uuid — who sent the last message
+  lastMessageRead?: boolean;    // whether the last message has been read
+  unreadCount?: number;         // format: int64 — unread messages from this partner
 }
 
 export interface UserResponse {
   id: string;               // format: uuid
   username: string;
   avatarUrl?: string;       // optional — added in API update
+  online?: boolean;         // added: real-time online presence
 }
 
 // ── User Profile types (new in API update) ───────────────────────────────────
@@ -99,6 +106,7 @@ export interface UserProfileResponse {
   username: string;
   bio: string;
   avatarUrl?: string;
+  online?: boolean;         // added: real-time online presence
   createdAt: string;        // format: date-time
   postsCount: number;       // format: int64
   totalLikesReceived: number; // format: int64

@@ -36,6 +36,12 @@ export async function updateBio(data: UpdateBioRequest): Promise<UserProfileResp
   return response.data;
 }
 
+/** GET /api/users/online — returns array of online user UUIDs */
+export async function getOnlineUsers(): Promise<string[]> {
+  const response = await apiClient.get<string[]>('/api/users/online');
+  return response.data;
+}
+
 /**
  * POST /api/users/me/avatar
  * Sends file as multipart/form-data with field name "file".

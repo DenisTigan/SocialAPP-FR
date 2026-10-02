@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import { AuthProvider } from './context/AuthContext';
+import { WebSocketProvider } from './context/WebSocketContext';
 import { UnreadProvider } from './context/UnreadContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/AppLayout';
@@ -19,8 +20,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        {/* UnreadProvider must be inside BrowserRouter (uses useLocation) and AuthProvider */}
-        <UnreadProvider>
+        {/* WebSocketProvider needs token from AuthProvider — must be nested inside it */}
+        <WebSocketProvider>
+          {/* UnreadProvider must be inside BrowserRouter (uses useLocation) and AuthProvider */}
+          <UnreadProvider>
           <Routes>
             {/* ── Public routes ── */}
             <Route path="/login" element={<Login />} />
@@ -46,7 +49,8 @@ export default function App() {
             {/* ── Default redirect ── */}
             <Route path="*" element={<Navigate to="/feed" replace />} />
           </Routes>
-        </UnreadProvider>
+          </UnreadProvider>
+        </WebSocketProvider>
       </AuthProvider>
     </BrowserRouter>
   );

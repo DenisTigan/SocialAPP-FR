@@ -1,10 +1,14 @@
 /**
- * UnreadContext — tracks unread message conversations via polling.
+ * UnreadContext — tracks total unread message count across all conversations.
  *
- * NOTE: This polling approach is intentionally lightweight. It should be
- * replaced later by the STOMP WebSocket subscription that the backend already
- * supports: connect to /user/queue/messages (MessageResponse shape) and update
- * unreadCount reactively instead of polling getInbox() every 10 seconds.
+ * Strategy:
+ *  - Primary: sum of ConversationResponse.unreadCount from the latest getInbox() call.
+ *  - Real-time refresh: triggered by latestMessage from WebSocketContext (new message event).
+ *  - Safety-net: 60s poll in case WebSocket is down.
+ *  - Optimistic zeroing: when user opens a chat, immediately zero that conversation's
+ *    unread count locally without waiting for a refetch.
+ *
+ * The old localStorage-based "lastSeen" approximation has been removed.
  */
 import {
   createContext,
@@ -18,38 +22,33 @@ import {
 import { useLocation } from 'react-router-dom';
 import { getInbox } from '../api/messages';
 import { useAuth } from './AuthContext';
+import { useWebSocket } from './WebSocketContext';
+import type { ConversationResponse } from '../types/api';
 import type { ToastData } from '../components/Toast';
 
-const POLL_INTERVAL_MS = 10_000;
-const LS_LAST_SEEN_PREFIX = 'lastSeen:';
+// Safety-net poll only — WebSocket drives real-time updates
+const SAFETY_POLL_MS = 60_000;
 
 interface UnreadContextValue {
   unreadCount: number;
-  markAsRead: (partnerId: string) => void;
+  /** Call when user opens a chat — optimistically zeros that conversation's unread */
+  markConversationRead: (partnerId: string) => void;
   toasts: ToastData[];
   dismissToast: (id: string) => void;
 }
 
 const UnreadContext = createContext<UnreadContextValue | undefined>(undefined);
 
-function getLastSeen(partnerId: string): string | null {
-  return localStorage.getItem(`${LS_LAST_SEEN_PREFIX}${partnerId}`);
-}
-
-function setLastSeen(partnerId: string, timestamp: string) {
-  localStorage.setItem(`${LS_LAST_SEEN_PREFIX}${partnerId}`, timestamp);
-}
-
 export function UnreadProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
+  const { latestMessage } = useWebSocket();
 
   const [unreadCount, setUnreadCount] = useState(0);
   const [toasts, setToasts] = useState<ToastData[]>([]);
 
-  // Track previous inbox snapshot to detect newly appearing unread conversations
-  const prevInboxRef = useRef<Map<string, string>>(new Map());
-  // Track if provider is mounted
+  // Local snapshot of conversations for optimistic updates
+  const convosRef = useRef<ConversationResponse[]>([]);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -57,97 +56,87 @@ export function UnreadProvider({ children }: { children: ReactNode }) {
     return () => { mountedRef.current = false; };
   }, []);
 
-  // ── Mark conversation as read when user opens it ───────────────────────────
-  const markAsRead = useCallback((partnerId: string) => {
-    setLastSeen(partnerId, new Date().toISOString());
-    // Immediately re-compute count: remove this partner from unread
-    setUnreadCount((prev) => Math.max(0, prev - 1));
-  }, []);
-
   // ── Dismiss a toast ───────────────────────────────────────────────────────
   const dismissToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  // ── Poll inbox ────────────────────────────────────────────────────────────
-  const pollInbox = useCallback(async () => {
+  // ── Refresh inbox + recompute unread ──────────────────────────────────────
+  const refreshInbox = useCallback(async () => {
     if (!isAuthenticated) return;
     try {
       const inbox = await getInbox();
       if (!mountedRef.current) return;
 
-      let newUnreadCount = 0;
-      const newToasts: ToastData[] = [];
+      convosRef.current = inbox;
 
+      // Total unread = sum of backend-provided unreadCount
+      const total = inbox.reduce((sum, c) => sum + (c.unreadCount ?? 0), 0);
+      setUnreadCount(total);
+
+      // Toast for newly arrived messages in conversations not currently open
       for (const conv of inbox) {
-        const lastSeen = getLastSeen(conv.partnerId);
-        const convTime = new Date(conv.timestamp).getTime();
-        const lastSeenTime = lastSeen ? new Date(lastSeen).getTime() : 0;
+        if ((conv.unreadCount ?? 0) === 0) continue;
+        const isOnThisChat = location.pathname === `/messages/${conv.partnerId}`;
+        if (isOnThisChat) continue;
 
-        const isUnread = convTime > lastSeenTime;
-
-        if (isUnread) {
-          newUnreadCount++;
-
-          // Detect newly appeared unread conversation (not in previous snapshot
-          // or timestamp changed) — show toast if not currently on that chat page
-          const prevTimestamp = prevInboxRef.current.get(conv.partnerId);
-          const isNew = !prevTimestamp || conv.timestamp !== prevTimestamp;
-          const isOnThisChat = location.pathname === `/messages/${conv.partnerId}`;
-
-          if (isNew && !isOnThisChat) {
-            const toastId = `toast-${conv.partnerId}-${conv.timestamp}`;
-            // Avoid duplicate toasts
-            setToasts((prev) => {
-              if (prev.some((t) => t.id === toastId)) return prev;
-              return [
-                ...prev,
-                {
-                  id: toastId,
-                  message: `New message from ${conv.partnerUsername}`,
-                  navigateTo: `/messages/${conv.partnerId}`,
-                },
-              ];
-            });
-            newToasts.push({ id: toastId, message: '' });
-          }
-        }
-
-        // Update snapshot
-        prevInboxRef.current.set(conv.partnerId, conv.timestamp);
+        const toastId = `toast-${conv.partnerId}-${conv.timestamp}`;
+        setToasts((prev) => {
+          if (prev.some((t) => t.id === toastId)) return prev;
+          return [
+            ...prev,
+            {
+              id: toastId,
+              message: `New message from ${conv.partnerUsername}`,
+              navigateTo: `/messages/${conv.partnerId}`,
+            },
+          ];
+        });
       }
-
-      setUnreadCount(newUnreadCount);
     } catch {
-      // Silently ignore poll errors — not critical
+      // Silently ignore errors — not critical
     }
   }, [isAuthenticated, location.pathname]);
 
-  // ── Auto-mark as read when user is on a chat page ─────────────────────────
+  // ── Optimistically zero a conversation's unread count ─────────────────────
+  const markConversationRead = useCallback((partnerId: string) => {
+    convosRef.current = convosRef.current.map((c) =>
+      c.partnerId === partnerId ? { ...c, unreadCount: 0 } : c
+    );
+    const total = convosRef.current.reduce((sum, c) => sum + (c.unreadCount ?? 0), 0);
+    setUnreadCount(total);
+  }, []);
+
+  // ── Auto-mark when user navigates to a chat page ──────────────────────────
   useEffect(() => {
     const match = location.pathname.match(/^\/messages\/(.+)$/);
     if (match) {
       const partnerId = match[1];
-      setLastSeen(partnerId, new Date().toISOString());
-      setUnreadCount(0);
+      markConversationRead(partnerId);
     }
-  }, [location.pathname]);
+  }, [location.pathname, markConversationRead]);
 
-  // ── Set up polling ────────────────────────────────────────────────────────
+  // ── Initial fetch + safety-net polling ────────────────────────────────────
   useEffect(() => {
     if (!isAuthenticated) {
       setUnreadCount(0);
       return;
     }
 
-    // Poll immediately on mount / auth change
-    pollInbox();
-    const interval = setInterval(pollInbox, POLL_INTERVAL_MS);
+    refreshInbox();
+    const interval = setInterval(refreshInbox, SAFETY_POLL_MS);
     return () => clearInterval(interval);
-  }, [isAuthenticated, pollInbox]);
+  }, [isAuthenticated, refreshInbox]);
+
+  // ── Refresh inbox when a new WS message arrives ───────────────────────────
+  useEffect(() => {
+    if (latestMessage) {
+      refreshInbox();
+    }
+  }, [latestMessage, refreshInbox]);
 
   return (
-    <UnreadContext.Provider value={{ unreadCount, markAsRead, toasts, dismissToast }}>
+    <UnreadContext.Provider value={{ unreadCount, markConversationRead, toasts, dismissToast }}>
       {children}
     </UnreadContext.Provider>
   );

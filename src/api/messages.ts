@@ -21,3 +21,15 @@ export async function sendMessage(
   const response = await apiClient.post<MessageResponse>(`/api/messages/${partnerId}`, data);
   return response.data;
 }
+
+/** PUT /api/messages/{partnerId}/read — marks all messages from partner as read */
+export async function markAsRead(partnerId: string): Promise<void> {
+  await apiClient.put(`/api/messages/${partnerId}/read`);
+}
+
+/** POST /api/messages/{receiverId}/typing?typing=boolean — REST fallback for typing indicator */
+export async function sendTypingRest(receiverId: string, typing: boolean): Promise<void> {
+  await apiClient.post(`/api/messages/${receiverId}/typing`, null, {
+    params: { typing },
+  });
+}

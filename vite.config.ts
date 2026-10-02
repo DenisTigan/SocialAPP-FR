@@ -50,4 +50,10 @@ export default defineConfig({
       },
     }),
   ],
+  // Polyfill Node.js globals that sockjs-client expects but browsers don't have.
+  // 'global' → 'globalThis' is the standard fix for the Vite + sockjs-client blank-screen issue.
+  define: {
+    global: 'globalThis',
+    'process.env': {},
+  },
 })

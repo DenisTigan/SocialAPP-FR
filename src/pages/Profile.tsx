@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getUserProfile, getUserPhotos } from '../api/users';
 import { useAuth } from '../context/AuthContext';
+import { useWebSocket } from '../context/WebSocketContext';
 import type { UserProfileResponse, PhotoResponse } from '../types/api';
 import Avatar from '../components/Avatar';
 import EditProfileModal from '../components/EditProfileModal';
@@ -14,6 +15,7 @@ export default function Profile() {
   const { id: profileUserId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user: me, logoutUser } = useAuth();
+  const { onlineUserIds } = useWebSocket();
 
   const [profile, setProfile] = useState<UserProfileResponse | null>(null);
   const [photos, setPhotos] = useState<PhotoResponse[]>([]);
@@ -21,6 +23,10 @@ export default function Profile() {
   const [editModalOpen, setEditModalOpen] = useState(false);
 
   const isOwnProfile = me?.userId === profileUserId;
+  // Online: WS live set overrides REST snapshot from profile fetch
+  const isOnline =
+    (profileUserId && onlineUserIds.has(profileUserId)) ||
+    (profile?.online ?? false);
 
   // Remove a deleted photo from the local list without refetching
   const handlePhotoDeleted = useCallback((photoId: string) => {
@@ -142,7 +148,12 @@ export default function Profile() {
         <div className="profile-header">
           {/* Avatar — large */}
           <div className="profile-avatar-wrap">
-            <Avatar avatarUrl={profile!.avatarUrl} username={username} size="lg" />
+            <Avatar
+              avatarUrl={profile!.avatarUrl}
+              username={username}
+              size="lg"
+              online={!isOwnProfile && !!isOnline}
+            />
           </div>
 
           <div className="profile-header-info">

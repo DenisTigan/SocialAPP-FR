@@ -522,3 +522,106 @@
   transform: none;
   box-shadow: none;
 }
+
+/* ════════════════════════════════════════
+   TYPING INDICATOR
+   ════════════════════════════════════════ */
+.chat-typing-row {
+  animation: bubbleIn 0.2s ease both;
+}
+
+.chat-typing-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  border-bottom-left-radius: 5px;
+}
+
+.chat-typing-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  animation: typingBounce 1.2s ease-in-out infinite;
+}
+
+.chat-typing-dot:nth-child(1) { animation-delay: 0s; }
+.chat-typing-dot:nth-child(2) { animation-delay: 0.18s; }
+.chat-typing-dot:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30%            { transform: translateY(-6px); opacity: 1; }
+}
+
+/* ════════════════════════════════════════
+   READ RECEIPT CHECKMARKS
+   ════════════════════════════════════════ */
+
+/* Bubble meta: time + read status in a row */
+.chat-bubble-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chat-bubble-row.mine .chat-bubble-meta {
+  justify-content: flex-end;
+}
+
+.chat-bubble-row.theirs .chat-bubble-meta {
+  justify-content: flex-start;
+}
+
+.chat-read-status {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  line-height: 1;
+  white-space: nowrap;
+  transition: color var(--transition-fast);
+}
+
+/* Two-check "seen" state — use accent colour */
+.chat-read-status--seen {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ════════════════════════════════════════
+   INBOX UNREAD BADGE
+   ════════════════════════════════════════ */
+
+/* Bold row when there are unread messages */
+.inbox-row--unread .inbox-username {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.inbox-row--unread .inbox-last-msg {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Unread pill badge */
+.inbox-unread-badge {
+  flex-shrink: 0;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: var(--accent-gradient);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: 0 1px 6px rgba(139, 92, 246, 0.45);
+}
+

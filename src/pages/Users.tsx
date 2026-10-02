@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { getAllUsers } from '../api/users';
 import { useAuth } from '../context/AuthContext';
+import { useWebSocket } from '../context/WebSocketContext';
 import type { UserResponse } from '../types/api';
 import Avatar from '../components/Avatar';
 import '../styles/users.css';
@@ -9,6 +10,7 @@ import '../styles/users.css';
 export default function Users() {
   const { user: me } = useAuth();
   const navigate = useNavigate();
+  const { onlineUserIds, mergeOnlineIds } = useWebSocket();
 
   const [users, setUsers] = useState<UserResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +20,16 @@ export default function Users() {
     let cancelled = false;
     getAllUsers()
       .then((data) => {
-        if (!cancelled) setUsers(data);
+        if (!cancelled) {
+          setUsers(data);
+          // Seed the WS online set with initial REST data
+          const initialOnlineIds = data
+            .filter((u) => u.online)
+            .map((u) => u.id);
+          if (initialOnlineIds.length > 0) {
+            mergeOnlineIds(initialOnlineIds);
+          }
+        }
       })
       .catch(() => {
         // silently fail — no retry needed for a simple list
@@ -27,7 +38,7 @@ export default function Users() {
         if (!cancelled) setLoading(false);
       });
     return () => { cancelled = true; };
-  }, []);
+  }, [mergeOnlineIds]);
 
   // Filter out current user and apply search
   const filtered = useMemo(() => {
@@ -88,7 +99,12 @@ export default function Users() {
           <ul className="users-list" role="list" aria-label="User list">
             {filtered.map((u) => (
               <li key={u.id} className="users-row" role="listitem">
-                <Avatar avatarUrl={u.avatarUrl} username={u.username} size="md" />
+                <Avatar
+                  avatarUrl={u.avatarUrl}
+                  username={u.username}
+                  size="md"
+                  online={onlineUserIds.has(u.id)}
+                />
                 <div className="users-row-info">
                   <Link
                     to={`/profile/${u.id}`}
